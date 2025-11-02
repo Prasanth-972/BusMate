@@ -1,0 +1,27 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Payment Success{% endblock %}
+
+{% block extra_css %}
+<style>
+    body {
+        background: url("{% static 'BusPass/images/payment.jpg' %}") no-repeat center center fixed;
+        background-size: cover;
+    }
+    .container { background-color: rgba(255,255,255,0.9); }
+    .navbar { background-color: rgba(63,81,181,0.9); }
+</style>
+{% endblock %}
+
+{% block content %}
+    <div class="success" style="padding: 30px; text-align: center;">
+        <h1>Application Submitted Successfully!</h1>
+        <p>Your fee payment has been confirmed (simulated). Your application is now in the **PAID** status.</p>
+        <p>The admin will now process your application and allocate your seat.</p>
+        <p style="margin-top: 20px;">
+            <a href="{% url 'my_pass' %}"><button>Check My Pass Status</button></a>
+            <a href="{% url 'user_dashboard' %}"><button style="background-color: #6c757d; color: #ffffff;">Go to Dashboard</button></a>
+        </p>
+    </div>
+{% endblock %}

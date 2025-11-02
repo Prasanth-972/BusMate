@@ -1,0 +1,39 @@
+{% extends "base.html" %}
+
+{% block title %}Process Application{% endblock %}
+
+{% block content %}
+    <h1>Process Bus Pass Application</h1>
+    
+    <div style="border: 1px solid #ccc; padding: 20px; border-radius: 4px;">
+        <h2>Applicant: {{ application.user.username }}</h2>
+        <p><strong>Route:</strong> {{ application.route.name }} (Fee: ₹{{ application.route.fee }})</p>
+        <p><strong>Boarding Location:</strong> {{ application.boarding_location }}</p>
+        <p><strong>Current Status:</strong> <span style="font-weight: bold;">{{ application.get_status_display }}</span></p>
+        {% if application.seat_number %}<p><strong>Allocated Seat:</strong> {{ application.seat_number }}</p>{% endif %}
+    </div>
+
+    <h2 style="margin-top: 30px;">Action</h2>
+
+    {% if application.status == 'PAID' %}
+        <form method="post" style="display: inline-block;">
+            {% csrf_token %}
+            <input type="hidden" name="action" value="allocate">
+            <button type="submit" style="background-color: green;">Allocate Seat & Approve</button>
+        </form>
+
+        <form method="post" style="display: inline-block; margin-left: 10px;">
+            {% csrf_token %}
+            <input type="hidden" name="action" value="reject">
+            <button type="submit" style="background-color: red;">Reject Application</button>
+        </form>
+    {% elif application.status == 'ALLOCATED' %}
+        <div class="success">This pass has already been **APPROVED** and seat **{{ application.seat_number }}** allocated.</div>
+    {% elif application.status == 'REJECTED' %}
+        <div class="error">This application was **REJECTED**.</div>
+    {% else %}
+        <div class="message error">Status is PENDING. Wait for payment (Simulated to PAID) before processing.</div>
+    {% endif %}
+
+    <p style="margin-top: 20px;"><a href="{% url 'admin_view_applications' %}">Back to Applications</a></p>
+{% endblock %}

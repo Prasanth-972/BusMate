@@ -1,0 +1,250 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Edit Profile{% endblock %}
+
+{% block extra_css %}
+<style>
+    body {
+        background: url("{% static 'BusPass/images/student.jpg' %}") no-repeat center center fixed;
+        background-size: cover;
+    }
+    .container { 
+        background-color: rgba(255,255,255,0.95);
+        padding: 30px;
+        border-radius: 10px;
+        max-width: 800px;
+        margin: 20px auto;
+    }
+    .profile-edit-form {
+        max-width: 600px;
+        margin: 0 auto;
+    }
+    .form-group {
+        margin-bottom: 1.5rem;
+    }
+    .form-label {
+        font-weight: 600;
+        color: #333;
+        margin-bottom: 0.5rem;
+        display: block;
+    }
+    .form-control {
+        width: 100%;
+        padding: 0.5rem;
+        border: 1px solid #ddd;
+        border-radius: 4px;
+        font-size: 1rem;
+    }
+    .btn-primary {
+        background-color: #3f51b5;
+        color: white;
+        padding: 10px 20px;
+        border: none;
+        border-radius: 4px;
+        cursor: pointer;
+        font-size: 1rem;
+        transition: background-color 0.2s;
+    }
+    .btn-primary:hover {
+        background-color: #303f9f;
+    }
+    .btn-outline {
+        background: none;
+        border: 1px solid #3f51b5;
+        color: #3f51b5;
+        padding: 10px 20px;
+        border-radius: 4px;
+        cursor: pointer;
+        font-size: 1rem;
+        text-decoration: none;
+        display: inline-block;
+        margin-right: 10px;
+        transition: all 0.2s;
+    }
+    .btn-outline:hover {
+        background-color: #f5f5f5;
+    }
+    .photo-upload {
+        margin: 20px 0;
+    }
+    .photo-preview {
+        width: 150px;
+        height: 150px;
+        border-radius: 50%;
+        object-fit: cover;
+        border: 4px solid #fff;
+        box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+        margin-bottom: 15px;
+    }
+    .no-photo {
+        width: 150px;
+        height: 150px;
+        border-radius: 50%;
+        background: #e0e0e0;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: #757575;
+        font-size: 3rem;
+        margin-bottom: 15px;
+    }
+    .form-actions {
+        margin-top: 30px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+    .errorlist {
+        color: #dc3545;
+        font-size: 0.9rem;
+        margin-top: 5px;
+    }
+    .help-text {
+        font-size: 0.85rem;
+        color: #6c757d;
+        margin-top: 5px;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container">
+    <h1>Edit Profile</h1>
+    
+    {% if messages %}
+    <div class="messages">
+        {% for message in messages %}
+        <div class="alert alert-{{ message.tags }}">{{ message }}</div>
+        {% endfor %}
+    </div>
+    {% endif %}
+    
+    <div class="profile-edit-form">
+        <div class="photo-upload">
+            <div class="form-label">Profile Photo</div>
+            {% if form.instance.photo %}
+                <img id="photo-preview" src="{{ form.instance.photo.url }}" alt="Profile Photo" class="photo-preview">
+            {% else %}
+                <div id="no-photo" class="no-photo">
+                    {{ form.instance.user.first_name|first|upper }}{{ form.instance.user.last_name|first|upper }}
+                </div>
+            {% endif %}
+        </div>
+        
+        <form method="post" enctype="multipart/form-data">
+            {% csrf_token %}
+            
+            <div class="form-group">
+                <label for="{{ form.photo.id_for_label }}" class="form-label">Change Photo</label>
+                {{ form.photo }}
+                {% if form.photo.errors %}
+                    <div class="errorlist">{{ form.photo.errors }}</div>
+                {% endif %}
+                <div class="help-text">{{ form.photo.help_text }}</div>
+            </div>
+            
+            <div class="form-group">
+                <label for="{{ form.first_name.id_for_label }}" class="form-label">First Name</label>
+                <input type="text" name="first_name" id="{{ form.first_name.id_for_label }}" 
+                       class="form-control" value="{{ form.first_name.value|default:'' }}">
+                {% if form.first_name.errors %}
+                    <div class="errorlist">{{ form.first_name.errors }}</div>
+                {% endif %}
+            </div>
+            
+            <div class="form-group">
+                <label for="{{ form.last_name.id_for_label }}" class="form-label">Last Name</label>
+                <input type="text" name="last_name" id="{{ form.last_name.id_for_label }}" 
+                       class="form-control" value="{{ form.last_name.value|default:'' }}">
+                {% if form.last_name.errors %}
+                    <div class="errorlist">{{ form.last_name.errors }}</div>
+                {% endif %}
+            </div>
+            
+            <div class="form-group">
+                <label for="{{ form.email.id_for_label }}" class="form-label">Email</label>
+                <input type="email" name="email" id="{{ form.email.id_for_label }}" 
+                       class="form-control" value="{{ form.email.value|default:'' }}">
+                {% if form.email.errors %}
+                    <div class="errorlist">{{ form.email.errors }}</div>
+                {% endif %}
+            </div>
+            
+            <div class="form-group">
+                <label for="{{ form.mobile_number.id_for_label }}" class="form-label">Mobile Number</label>
+                <input type="text" name="mobile_number" id="{{ form.mobile_number.id_for_label }}" 
+                       class="form-control" value="{{ form.mobile_number.value|default:'' }}">
+                {% if form.mobile_number.errors %}
+                    <div class="errorlist">{{ form.mobile_number.errors }}</div>
+                {% endif %}
+            </div>
+            
+            <div class="form-group">
+                <label for="{{ form.department.id_for_label }}" class="form-label">Department</label>
+                {{ form.department }}
+                {% if form.department.errors %}
+                    <div class="errorlist">{{ form.department.errors }}</div>
+                {% endif %}
+            </div>
+            
+            <div class="form-group">
+                <label for="{{ form.preferred_boarding_location.id_for_label }}" class="form-label">Preferred Boarding Location</label>
+                <input type="text" name="preferred_boarding_location" id="{{ form.preferred_boarding_location.id_for_label }}" 
+                       class="form-control" value="{{ form.preferred_boarding_location.value|default:'' }}">
+                {% if form.preferred_boarding_location.errors %}
+                    <div class="errorlist">{{ form.preferred_boarding_location.errors }}</div>
+                {% endif %}
+            </div>
+            
+            <div class="form-actions">
+                <a href="{% url 'user_dashboard' %}" class="btn-outline">Back to Dashboard</a>
+                <div>
+                    <a href="{% url 'change_password' %}" class="btn-outline">Change Password</a>
+                    <button type="submit" class="btn-primary">Save Changes</button>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+
+<script>
+// Preview uploaded photo
+function readURL(input) {
+    if (input.files && input.files[0]) {
+        const reader = new FileReader();
+        
+        reader.onload = function(e) {
+            // Hide the no-photo div if it exists
+            const noPhoto = document.getElementById('no-photo');
+            if (noPhoto) {
+                noPhoto.style.display = 'none';
+            }
+            
+            // Show or update the image preview
+            let preview = document.getElementById('photo-preview');
+            if (!preview) {
+                preview = document.createElement('img');
+                preview.id = 'photo-preview';
+                preview.className = 'photo-preview';
+                preview.alt = 'Profile Photo';
+                document.querySelector('.photo-upload').appendChild(preview);
+            }
+            
+            preview.src = e.target.result;
+        }
+        
+        reader.readAsDataURL(input.files[0]);
+    }
+}
+
+document.addEventListener('DOMContentLoaded', function() {
+    const photoInput = document.getElementById('{{ form.photo.id_for_label }}');
+    if (photoInput) {
+        photoInput.addEventListener('change', function() {
+            readURL(this);
+        });
+    }
+});
+</script>
+{% endblock %}

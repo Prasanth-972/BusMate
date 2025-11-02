@@ -1,0 +1,304 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Student Dashboard{% endblock %}
+
+{% block extra_css %}
+<style>
+    body {
+        background: url("{% static 'BusPass/images/student.jpg' %}") no-repeat center center fixed;
+        background-size: cover;
+    }
+    .container { 
+        background-color: rgba(255,255,255,0.9);
+        padding: 30px;
+        border-radius: 12px;
+        max-width: 1200px;
+        margin: 20px auto;
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+    }
+    .navbar { background-color: rgba(63,81,181,0.9); }
+    #support-panel { backdrop-filter: blur(2px); }
+    #support-toggle { box-shadow: 0 6px 18px rgba(63,81,181,0.4); }
+    
+    .dashboard-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+        gap: 30px;
+        margin: 30px 0;
+    }
+    
+    .dashboard-card {
+        background: #ffffff;
+        border-radius: 12px;
+        padding: 24px;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        transition: transform 0.2s ease, box-shadow 0.2s ease;
+        text-decoration: none;
+        color: #333;
+        display: flex;
+        flex-direction: column;
+        height: 100%;
+    }
+    
+    .dashboard-card:hover {
+        transform: translateY(-5px) scale(1.02);
+        box-shadow: 0 12px 25px rgba(0, 0, 0, 0.1);
+    }
+    
+    .dashboard-card:hover .card-arrow {
+        transform: translateX(5px);
+    }
+    
+    .dashboard-card:hover .card-hover {
+        transform: scaleX(1);
+    }
+    
+    .card-icon {
+        width: 72px;
+        height: 72px;
+        margin: 0 auto 16px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+    
+    .card-title {
+        margin: 6px 0 8px;
+        font-size: 1.25rem;
+        font-weight: 600;
+        text-align: center;
+    }
+    
+    .card-description {
+        margin: 0;
+        color: #666;
+        font-size: 0.95rem;
+        line-height: 1.5;
+        text-align: center;
+    }
+    
+    .profile-header {
+        display: flex;
+        align-items: center;
+        margin-bottom: 20px;
+        padding-bottom: 20px;
+        border-bottom: 1px solid #eee;
+    }
+    
+    .profile-avatar {
+        width: 100px;
+        height: 100px;
+        border-radius: 50%;
+        object-fit: cover;
+        border: 4px solid #fff;
+        box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+        margin-right: 24px;
+    }
+    
+    .profile-info h2 {
+        margin: 0 0 8px 0;
+        color: #1a237e;
+    }
+    
+    .profile-details {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 16px;
+        margin-top: 20px;
+    }
+    
+    .detail-item {
+        margin-bottom: 12px;
+    }
+    
+    .detail-label {
+        font-weight: 600;
+        color: #555;
+        font-size: 0.9rem;
+        margin-bottom: 4px;
+    }
+    
+    .detail-value {
+        color: #333;
+        font-size: 1rem;
+    }
+    
+    .no-photo {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: #e0e0e0;
+        color: #757575;
+        font-size: 2rem;
+    }
+    
+    .edit-profile-btn {
+        display: inline-block;
+        background: #3f51b5;
+        color: white;
+        padding: 8px 16px;
+        border-radius: 4px;
+        text-decoration: none;
+        font-size: 0.9rem;
+        margin-top: 10px;
+        transition: background 0.2s;
+    }
+    
+    .edit-profile-btn:hover {
+        background: #303f9f;
+        color: white;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+    <div class="profile-header">
+        <div class="profile-avatar">
+            {% if user.userprofile.photo %}
+                <img src="{{ user.userprofile.photo.url }}" alt="Profile Photo" style="width: 100%; height: 100%; border-radius: 50%; object-fit: cover;">
+            {% else %}
+                <div class="no-photo" style="width: 100%; height: 100%; border-radius: 50%;">
+                    {{ user.first_name|first|upper }}{{ user.last_name|first|upper }}
+                </div>
+            {% endif %}
+        </div>
+        <div class="profile-info">
+            <h2>{{ user.get_full_name|default:user.username }}</h2>
+            <p style="color: #666; margin: 0 0 10px 0;">
+                {{ user.userprofile.get_user_type_display }}
+                {% if user.userprofile.department %}
+                    • {{ user.userprofile.department }}
+                {% endif %}
+            </p>
+            <a href="{% url 'edit_profile' %}" class="edit-profile-btn">Edit Profile</a>
+        </div>
+    </div>
+    
+    <div class="profile-details">
+        <div class="detail-item">
+            <div class="detail-label">Username</div>
+            <div class="detail-value">{{ user.username }}</div>
+        </div>
+        <div class="detail-item">
+            <div class="detail-label">Email</div>
+            <div class="detail-value">{{ user.email|default:'Not provided' }}</div>
+        </div>
+        <div class="detail-item">
+            <div class="detail-label">Mobile Number</div>
+            <div class="detail-value">{{ user.userprofile.mobile_number|default:'Not provided' }}</div>
+        </div>
+        <div class="detail-item">
+            <div class="detail-label">Preferred Boarding</div>
+            <div class="detail-value">{{ user.userprofile.preferred_boarding_location|default:'Not set' }}</div>
+        </div>
+    </div>
+    
+    <div style="margin: 20px 0 30px;">
+        <h2 style="font-size: 1.8rem; color: #2c3e50; font-weight: 600; position: relative; padding-bottom: 12px; margin: 0 0 5px 0;">
+            Quick Actions
+            <span style="position: absolute; bottom: 0; left: 0; width: 60px; height: 4px; background: linear-gradient(90deg, #3f51b5, #2196f3); border-radius: 2px;"></span>
+        </h2>
+        <p style="color: #6c757d; margin: 0; font-size: 0.95rem;">Quickly access important features and information</p>
+    </div>
+    <div class="dashboard-grid" style="gap: 30px;">
+        <a href="{% url 'view_routes' %}" class="dashboard-card" style="background: white; border: none; border-radius: 12px; box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08); transition: all 0.3s ease; position: relative; overflow: hidden; padding: 30px; height: 100%;">
+            <div class="card-icon" style="background: linear-gradient(135deg, #3f51b5 0%, #5c6bc0 100%); width: 64px; height: 64px; margin-bottom: 20px; border-radius: 12px; display: flex; align-items: center; justify-content: center;">
+                <svg width="32" height="32" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M4 16V7.5C4 6.12 5.12 5 6.5 5h11C18.88 5 20 6.12 20 7.5V16m-16 0h16m-16 0v1.5A1.5 1.5 0 0 0 5.5 19h1A1.5 1.5 0 0 0 8 17.5V16m8 0v1.5A1.5 1.5 0 0 0 17.5 19h1a1.5 1.5 0 0 0 1.5-1.5V16M6 9h12M6 12h6" stroke="#fff" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+            </div>
+            <h3 class="card-title" style="color: #2c3e50; font-size: 1.4rem; margin-bottom: 12px; font-weight: 600;">View Routes & Apply</h3>
+            <p class="card-description" style="color: #6c757d; font-size: 0.95rem; line-height: 1.5; margin-bottom: 20px;">Browse available routes and submit a new bus pass application with just a few clicks.</p>
+            <div class="card-arrow" style="position: absolute; right: 20px; bottom: 20px; width: 32px; height: 32px; background: #f0f2ff; border-radius: 50%; display: flex; align-items: center; justify-content: center; transition: all 0.3s ease;">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M5 12H19M19 12L12 5M19 12L12 19" stroke="#3f51b5" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+            </div>
+            <div class="card-hover" style="position: absolute; top: 0; left: 0; width: 100%; height: 4px; background: linear-gradient(90deg, #3f51b5, #5c6bc0); transition: all 0.3s ease; transform: scaleX(0); transform-origin: left;"></div>
+        </a>
+        
+        <a href="{% url 'my_pass' %}" class="dashboard-card" style="background: white; border: none; border-radius: 12px; box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08); transition: all 0.3s ease; position: relative; overflow: hidden; padding: 30px; height: 100%;">
+            <div class="card-icon" style="background: linear-gradient(135deg, #ff9800 0%, #ffb74d 100%); width: 64px; height: 64px; margin-bottom: 20px; border-radius: 12px; display: flex; align-items: center; justify-content: center;">
+                <svg width="32" height="32" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M7 7h10a2 2 0 0 1 2 2v6.5a1.5 1.5 0 0 1-1.5 1.5H8.5A1.5 1.5 0 0 1 7 15.5V7z" stroke="#fff" stroke-width="1.8" stroke-linejoin="round"/>
+                    <path d="M7 9h10M10 12h6M10 14.5h4" stroke="#fff" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+                    <path d="M7 5v2M17 5v2" stroke="#fff" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+            </div>
+            <h3 class="card-title" style="color: #2c3e50; font-size: 1.4rem; margin-bottom: 12px; font-weight: 600;">My Bus Pass Status</h3>
+            <p class="card-description" style="color: #6c757d; font-size: 0.95rem; line-height: 1.5; margin-bottom: 20px;">Check the current status of your application and download your digital bus pass.</p>
+            <div class="card-arrow" style="position: absolute; right: 20px; bottom: 20px; width: 32px; height: 32px; background: #fff3e0; border-radius: 50%; display: flex; align-items: center; justify-content: center; transition: all 0.3s ease;">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M5 12H19M19 12L12 5M19 12L12 19" stroke="#ff9800" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+            </div>
+            <div class="card-hover" style="position: absolute; top: 0; left: 0; width: 100%; height: 4px; background: linear-gradient(90deg, #ff9800, #ffb74d); transition: all 0.3s ease; transform: scaleX(0); transform-origin: left;"></div>
+        </a>
+        
+    </div>
+    
+    <!-- Support widget moved outside of links -->
+        <div id="support-widget" style="position:fixed; right:20px; bottom:20px; z-index:9999;">
+            <div id="support-panel" style="display:none; width:300px; background:#ffffff; border:1px solid #ddd; border-radius:12px; box-shadow:0 8px 20px rgba(0,0,0,0.15); overflow:hidden;">
+                <div style="background:#3f51b5; color:#fff; padding:10px 12px; font-weight:600;">Support</div>
+                <div style="padding:12px;">
+                    <form id="support-form">
+                        {% csrf_token %}
+                        <textarea name="message" id="support-message" rows="3" placeholder="Type your message..." style="width:100%; resize:vertical;"></textarea>
+                        <button type="submit" style="margin-top:8px; width:100%;">Send</button>
+                    </form>
+                    <div id="support-status" style="margin-top:8px; font-size:0.9em;"></div>
+                </div>
+            </div>
+            <button id="support-toggle" aria-label="Support" title="Support" style="width:56px; height:56px; border-radius:50%; background:#3f51b5; color:#fff; border:none; box-shadow:0 6px 18px rgba(63,81,181,0.4); cursor:pointer; display:flex; align-items:center; justify-content:center;">?
+            </button>
+        </div>
+        <script>
+        (function() {
+            const panel = document.getElementById('support-panel');
+            const toggle = document.getElementById('support-toggle');
+            const form = document.getElementById('support-form');
+            const status = document.getElementById('support-status');
+            toggle.addEventListener('click', function(){
+                panel.style.display = panel.style.display === 'none' ? 'block' : 'none';
+            });
+            function getCookie(name) {
+                const value = `; ${document.cookie}`;
+                const parts = value.split(`; ${name}=`);
+                if (parts.length === 2) return parts.pop().split(';').shift();
+            }
+            form.addEventListener('submit', async function(e){
+                e.preventDefault();
+                status.textContent = '';
+                const msg = document.getElementById('support-message').value.trim();
+                if (!msg) { status.textContent = 'Please enter a message.'; return; }
+                try {
+                    const resp = await fetch("{% url 'ai_support_chat' %}", {
+                        method: 'POST',
+                        headers: {
+                            'X-CSRFToken': getCookie('csrftoken'),
+                            'Content-Type': 'application/x-www-form-urlencoded;charset=UTF-8'
+                        },
+                        body: new URLSearchParams({ message: msg })
+                    });
+                    const data = await resp.json();
+                    if (data.ok) {
+                        status.style.color = 'green';
+                        status.textContent = data.reply || 'AI responded.';
+                        document.getElementById('support-message').value = '';
+                    } else {
+                        status.style.color = 'red';
+                        status.textContent = data.error || 'Failed to send message.';
+                    }
+                } catch(err) {
+                    status.style.color = 'red';
+                    status.textContent = 'Network error. Please try again.';
+                }
+            });
+        })();
+        </script>
+    </div>
+
+{% endblock %}

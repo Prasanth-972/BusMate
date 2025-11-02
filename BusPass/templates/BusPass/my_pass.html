@@ -1,0 +1,70 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}My Bus Pass{% endblock %}
+
+{% block extra_css %}
+<style>
+    body {
+        background: url("{% static 'BusPass/images/routes.jpg' %}") no-repeat center center fixed;
+        background-size: cover;
+    }
+    .container { background-color: rgba(255,255,255,0.9); }
+    .navbar { background-color: rgba(63,81,181,0.9); }
+    .status { font-weight: bold; }
+    .status.allocated { color: green; }
+    .status.paid { color: orange; }
+    .status.pending { color: blue; }
+    .status.cancelled { color: #9e9e9e; }
+    .status.other { color: red; }
+</style>
+{% endblock %}
+
+{% block content %}
+    <h1>My Bus Pass Status</h1>
+
+    {% if bus_pass %}
+        <div style="border: 2px solid #3f51b5; padding: 20px; border-radius: 8px;">
+            <h2>Application Details</h2>
+            <p><strong>Route:</strong> {{ bus_pass.route.name }}</p>
+            <p><strong>Boarding Location:</strong> {{ bus_pass.boarding_location }}</p>
+            <p><strong>Application Date:</strong> {{ bus_pass.application_date|date:"F d, Y" }}</p>
+            <p><strong>Status:</strong>
+                <span class="status 
+                    {% if bus_pass.status == 'ALLOCATED' %}allocated
+                    {% elif bus_pass.status == 'PAID' %}paid
+                    {% elif bus_pass.status == 'PENDING' %}pending
+                    {% elif bus_pass.status == 'CANCELLED' %}cancelled
+                    {% else %}other{% endif %}">
+                    {{ bus_pass.get_status_display }}
+                </span>
+            </p>
+
+            {% if bus_pass.status == 'ALLOCATED' %}
+                <hr>
+                <p>✅ Seat Allocated!</p>
+                <h3>Seat Number: {{ bus_pass.seat_number }}</h3>
+                <a href="{% url 'download_buspass' bus_pass.id %}"><button style="background-color: green; color: #ffffff;">Download Bus Pass</button></a>
+            {% elif bus_pass.status == 'PAID' %}
+                <p>⏳ Your application is currently being processed by the admin. Please check back later for seat allocation.</p>
+                <form method="post" action="{% url 'cancel_pass' bus_pass.id %}" onsubmit="return confirm('Are you sure you want to cancel your bus pass application?');" style="margin-top:12px;">
+                    {% csrf_token %}
+                    <button type="submit" style="background:#e53935;">Cancel Application</button>
+                </form>
+            {% elif bus_pass.status == 'PENDING' %}
+                <p>📝 Your application is pending approval.</p>
+                <form method="post" action="{% url 'cancel_pass' bus_pass.id %}" onsubmit="return confirm('Are you sure you want to cancel your bus pass application?');" style="margin-top:12px;">
+                    {% csrf_token %}
+                    <button type="submit" style="background:#e53935;">Cancel Application</button>
+                </form>
+            {% elif bus_pass.status == 'CANCELLED' %}
+                <p>🚫 This application was cancelled by you.</p>
+            {% else %}
+                <p>❌ Pass is not yet active/allocated. Contact the administration if you believe this is an error.</p>
+            {% endif %}
+        </div>
+    {% else %}
+        <p>You have not submitted any bus pass applications yet.</p>
+        <a href="{% url 'view_routes' %}"><button>View Routes to Apply</button></a>
+    {% endif %}
+{% endblock %}

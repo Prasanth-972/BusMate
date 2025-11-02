@@ -1,0 +1,13 @@
+{% extends "base.html" %}
+
+{% block title %}Add New Bus Route{% endblock %}
+
+{% block content %}
+    <h1>Add New Bus Route</h1>
+    <form method="post">
+        {% csrf_token %}
+        {{ form.as_p }}
+        <button type="submit">Save Route</button>
+    </form>
+    <p style="margin-top: 20px;"><a href="{% url 'admin_view_routes' %}">Back to View Routes</a></p>
+{% endblock %}

@@ -1,0 +1,57 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Apply for Pass{% endblock %}
+
+{% block extra_css %}
+<style>
+    body {
+        background: url("{% static 'BusPass/images/apply.jpg' %}") no-repeat center center fixed;
+        background-size: cover;
+    }
+    .container { background-color: rgba(255,255,255,0.9); }
+    .navbar { background-color: rgba(63,81,181,0.9); }
+</style>
+{% endblock %}
+
+{% block content %}
+    <h1>Apply for Bus Pass: {{ route.name }}</h1>
+    <p><strong>Route Fee:</strong> ₹<span id="routeFeePayable">{{ route.fee }}</span></p>
+    
+    <form method="post">
+        {% csrf_token %}
+        {{ form.as_p }}
+        
+        <p>By clicking "Pay & Apply", you agree to the fee of ₹<span id="payableFee">{{ route.fee }}</span>. (Payment simulated)</p>
+        <button type="submit">Pay & Apply for Pass</button>
+    </form>
+
+    <script>
+    (function() {
+        const baseFee = parseFloat("{{ route.fee }}");
+        const select = document.getElementById('id_boarding_location');
+        const payableSpan = document.getElementById('payableFee');
+
+        function formatINR(num) {
+            try { return num.toFixed(2); } catch (e) { return num; }
+        }
+
+        function updateFee() {
+            if (!select) return;
+            // Option index is 0-based; discount uses 1-based position
+            const position = select.selectedIndex + 1;
+            const discount = 150 * position;
+            const payable = Math.max(baseFee - discount, 0);
+            payableSpan.textContent = formatINR(payable);
+            const routeFeeSpan = document.getElementById('routeFeePayable');
+            if (routeFeeSpan) routeFeeSpan.textContent = formatINR(payable);
+        }
+
+        if (select) {
+            select.addEventListener('change', updateFee);
+            // Initialize on load
+            updateFee();
+        }
+    })();
+    </script>
+{% endblock %}

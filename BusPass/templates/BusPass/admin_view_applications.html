@@ -1,0 +1,119 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Bus Pass Applications{% endblock %}
+
+{% block extra_css %}
+<style>
+    body {
+        background: url("{% static 'BusPass/images/admin.jpg' %}") no-repeat center center fixed;
+        background-size: cover;
+    }
+    .container { background-color: rgba(255,255,255,0.9); }
+    .navbar { background-color: rgba(63,81,181,0.9); }
+    .btn { padding:10px 15px; border:none; border-radius:4px; background-color:#3f51b5; color:#ffffff; cursor:pointer; }
+    .btn:disabled { background-color:#6c757d; cursor:not-allowed; }
+    .btn-danger { background-color:#F62F63; }
+    /* Simple modal styles */
+    .modal-backdrop { position:fixed; inset:0; background:rgba(0,0,0,0.5); display:none; align-items:center; justify-content:center; z-index:10000; }
+    .modal { background:#fff; width:420px; max-width:90vw; border-radius:8px; box-shadow:0 10px 30px rgba(0,0,0,0.2); overflow:hidden; }
+    .modal-header { background:#3f51b5; color:#fff; padding:12px 16px; font-weight:600; display:flex; align-items:center; justify-content:space-between; }
+    .modal-body { padding:16px; }
+    .modal-close { background:transparent; border:none; color:#fff; font-size:18px; cursor:pointer; }
+    .applicant-link { background:transparent; border:none; color:#1f2a60; text-decoration:underline; cursor:pointer; padding:0; font:inherit; }
+</style>
+{% endblock %}
+
+{% block content %}
+    <h1>Bus Pass Applications</h1>
+    
+    <table>
+        <thead>
+            <tr>
+                <th>Applicant</th>
+                <th>Route</th>
+                <th>Boarding</th>
+                <th>Date Applied</th>
+                <th>Status</th>
+                <th>Seat No.</th>
+                <th>Action</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for app in applications %}
+                <tr>
+                    <td>
+                        <button class="applicant-link"
+                            data-fullname="{{ app.user.get_full_name|default:app.user.username|cut:"_" }}"
+                            data-username="{{ app.user.username|cut:"_" }}"
+                            data-contact="{{ app.user.userprofile.mobile_number|default:'N/A' }}"
+                            data-dept="{{ app.user.userprofile.department|default:'N/A' }}"
+                            data-boarding="{{ app.boarding_location }}">
+                            {{ app.user.get_full_name|default:app.user.username|cut:"_" }}
+                        </button>
+                    </td>
+                    <td>{{ app.route.name }}</td>
+                    <td>{{ app.boarding_location }}</td>
+                    <td>{{ app.application_date|date:"Y-m-d" }}</td>
+                    <td>{{ app.get_status_display }}</td>
+                    <td>{{ app.seat_number|default:"N/A" }}</td>
+                    <td style="display:flex; gap:8px; align-items:center;">
+                        <a href="{% url 'admin_process_pass' app.id %}"><button class="btn"
+                            {% if app.status == 'ALLOCATED' or app.status == 'REJECTED' %}disabled{% endif %}>
+                            Process
+                        </button></a>
+                        <form method="post" action="{% url 'admin_process_pass' app.id %}" onsubmit="return confirm('Reject this application?');">
+                            {% csrf_token %}
+                            <input type="hidden" name="action" value="reject" />
+                            <button type="submit" class="btn btn-danger"
+                                {% if app.status == 'ALLOCATED' or app.status == 'REJECTED' %}disabled{% endif %}>
+                                Reject
+                            </button>
+                        </form>
+                    </td>
+                </tr>
+            {% empty %}
+                <tr><td colspan="7">No applications found.</td></tr>
+            {% endfor %}
+        </tbody>
+    </table>
+
+    <!-- Applicant Details Modal -->
+    <div id="applicant-modal" class="modal-backdrop" role="dialog" aria-modal="true" aria-hidden="true">
+        <div class="modal">
+            <div class="modal-header">
+                <span>Applicant Details</span>
+                <button type="button" class="modal-close" aria-label="Close" id="applicant-modal-close">✕</button>
+            </div>
+            <div class="modal-body">
+                <p><strong>Full name:</strong> <span id="m-fullname"></span></p>
+                <p><strong>Username:</strong> <span id="m-username"></span></p>
+                <p><strong>Contact number:</strong> <span id="m-contact"></span></p>
+                <p><strong>Department:</strong> <span id="m-dept"></span></p>
+                <p><strong>Boarding location:</strong> <span id="m-boarding"></span></p>
+            </div>
+        </div>
+    </div>
+
+    <script>
+    (function(){
+        const modal = document.getElementById('applicant-modal');
+        const closeBtn = document.getElementById('applicant-modal-close');
+        function openModal() { modal.style.display = 'flex'; modal.setAttribute('aria-hidden','false'); }
+        function closeModal() { modal.style.display = 'none'; modal.setAttribute('aria-hidden','true'); }
+        closeBtn.addEventListener('click', closeModal);
+        modal.addEventListener('click', function(e){ if (e.target === modal) closeModal(); });
+        document.querySelectorAll('.applicant-link').forEach(function(btn){
+            btn.addEventListener('click', function(e){
+                e.preventDefault();
+                document.getElementById('m-fullname').textContent = btn.dataset.fullname || 'N/A';
+                document.getElementById('m-username').textContent = btn.dataset.username || 'N/A';
+                document.getElementById('m-contact').textContent = btn.dataset.contact || 'N/A';
+                document.getElementById('m-dept').textContent = btn.dataset.dept || 'N/A';
+                document.getElementById('m-boarding').textContent = btn.dataset.boarding || 'N/A';
+                openModal();
+            });
+        });
+    })();
+    </script>
+{% endblock %}

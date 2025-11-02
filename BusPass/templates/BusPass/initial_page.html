@@ -1,0 +1,35 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Welcome to Busmate{% endblock %}
+
+{% block extra_css %}
+<style>
+    body {
+        background: url("{% static 'BusPass/images/initial_bg.jpg' %}") no-repeat center center fixed;
+        background-size: cover;
+    }
+    .container {
+        background-color: rgba(255, 255, 255, 0.9);
+    }
+    .navbar {
+        background-color: rgba(63, 81, 181, 0.9);
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+    <header style="text-align: center; padding: 40px; background-color: #f1f1f1; border-radius: 4px; margin-bottom: 20px;">
+        <h2>Welcome to Busmate - Your College Bus Pass Solution</h2>
+    </header>
+
+    <div style="display: flex; justify-content: space-between;">
+        <div style="flex: 2; padding-right: 20px;">
+            <h2>About Us</h2>
+            <p>Busmate is the official college bus pass management system, designed to streamline the process of route selection, fee payment, and bus pass generation for all enrolled students.</p>
+            <p>Our goal is to ensure a safe, organized, and convenient commuting experience. Simply log in to view routes, apply for your pass, and secure your seat for the semester!</p>
+        </div>
+        
+        
+    </div>
+{% endblock %}

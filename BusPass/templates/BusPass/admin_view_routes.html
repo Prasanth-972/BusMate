@@ -1,0 +1,47 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Manage Routes{% endblock %}
+
+{% block extra_css %}
+<style>
+    body {
+        background: url("{% static 'BusPass/images/admin1.jpg' %}") no-repeat center center fixed;
+        background-size: cover;
+    }
+    .container { background-color: rgba(255,255,255,0.9); }
+    .navbar { background-color: rgba(63,81,181,0.9); }
+</style>
+{% endblock %}
+
+{% block content %}
+    <h1>Current Bus Routes and Fees</h1>
+    <p><a href="{% url 'admin_add_route' %}"><button>+ Add New Route</button></a></p>
+    
+    <table>
+        <thead>
+            <tr>
+                <th>Route Name</th>
+                <th>Fee</th>
+                <th>Max Seats</th>
+                <th>Description</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for route in routes %}
+                <tr>
+                    <td>{{ route.name }}</td>
+                    <td>₹{{ route.fee }}</td>
+                    <td>{{ route.max_seats }}</td>
+                    <td>{{ route.description|truncatechars:50 }}</td>
+                    <td>
+                        <a href="{% url 'admin_edit_route' route.id %}">Edit</a>
+                    </td>
+                </tr>
+            {% empty %}
+                <tr><td colspan="5">No routes defined. Please add one.</td></tr>
+            {% endfor %}
+        </tbody>
+    </table>
+{% endblock %}
