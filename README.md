@@ -23,11 +23,11 @@ BusMate is a web-based application designed to streamline and automate the issua
 *  Database: SQLite
 *  Application modules:
   
-  ->  User registration
-  ->  Application submission
-  ->  Database management
-  ->  Verification & approval workflow
-  ->  Pass generation & renewal
+  *  User registration
+  *  Application submission
+  *  Database management
+  *  Verification & approval workflow
+  *  Pass generation & renewal
 
 *  Deployment: Runs on a standard web server; ensure correct database, static files and routing configuration.
 
